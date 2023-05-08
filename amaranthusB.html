@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Histogram Chart from CSV</title>
+
+    <!-- css styling text -->
+    <style>
+        h1 {
+          text-align: center;
+        }
+        p {
+        background-color: #F2F2F2; /* Light Gray */
+        font-size: 16px;
+        line-height: 1.5;
+        color: #333;
+        margin: 10px 0;
+        padding: 0;
+        text-align: justify;
+    }
+    button {
+        background-color: #ffb6c1;
+        border: none;
+        color: black;
+        padding: 15px 32px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 16px;
+        margin: 4px 2px;
+        cursor: pointer;
+        border-radius: 10px;
+        box-shadow: 2px 2px 5px #888888;
+        transition: background-color 0.3s ease-in-out;
+      }
+      button:hover {
+        background-color: #46232c;
+      }
+      </style>
+
+    <!-- Import Chart.js library -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Import Papa Parse library for parsing CSV files -->
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.0/papaparse.min.js"></script>
+  </head>
+
+  <body>
+    <h1>Amaranthus_growth_rate_B: Real-Time Data Histogram Chart Reading</h1>
+    <p>Amaranthus is a plant commonly grown in smart farming systems due to its nutritional value and relatively short growth period. One important metric for assessing Amaranthus growth is its growth rate. To better monitor and optimise Amaranthus growth, real-time data visualisation through histogram chart reading was implemented.
+        <br><br>To achieve real-time data visualisation of the Amaranthus growth rate, sensors were installed throughout the farm to collect data on the plant's growth rate. This data was then transmitted to a central system, which could store and analyse it. The system then generated a CSV (comma-separated values) file format of the data.
+        <br><br>A web-based application that displays a histogram chart of the amaranth growth rate can access and read this CSV file in real-time. The histogram chart displays the frequency distribution of the growth rates measured by the sensors, allowing farmers to easily identify any trends or patterns in the amaranthus growth rate.
+    </p>
+
+    <canvas id="myChart"></canvas>
+
+    <script>
+      // Get the canvas element and create a new Chart instance
+      var ctx = document.getElementById("myChart").getContext("2d");
+      var chart = new Chart(ctx, {
+        type: "bar",
+        data: {
+          labels: [], // An empty array to hold the labels for the chart
+          datasets: [
+            {
+              label: "Number of leaves",
+              data: [], // An empty array to hold the data for the chart
+              backgroundColor: "rgba(255, 99, 132, 0.2)",
+              borderColor: "rgba(255, 99, 132, 1)",
+              borderWidth: 1
+            },
+            {
+              label: "Leaf width(cm)",
+              data: [], // An empty array to hold the data for the chart
+              backgroundColor: "rgba(54, 162, 235, 0.2)",
+              borderColor: "rgba(54, 162, 235, 1)",
+              borderWidth: 1
+            },
+            {
+              label: "Leaf Length(cm)",
+              data: [], // An empty array to hold the data for the chart
+              backgroundColor: "rgba(255, 206, 86, 0.2)",
+              borderColor: "rgba(255, 206, 86, 1)",
+              borderWidth: 1
+            },
+            {
+              label: "crop height(cm)",
+              data: [], // An empty array to hold the data for the chart
+              backgroundColor: "rgba(75, 192, 192, 0.2)",
+              borderColor: "rgba(75, 192, 192, 1)",
+              borderWidth: 1
+            },
+            {
+              label: "change in growth(cm)",
+              data: [], // An empty array to hold the data for the chart
+              backgroundColor: "rgba(153, 102, 255, 0.2)",
+              borderColor: "rgba(153, 102, 255, 1)",
+              borderWidth: 1
+            }
+          ]
+        },
+        options: {
+          title: {
+            display: true,
+            text: "Amaranthus Growth Rate"
+          },
+          scales: {
+            yAxes: [
+              {
+                ticks: {
+                  beginAtZero: true
+                }
+              }
+            ]
+          }
+        }
+      });
+      // Use Papa Parse to download and parse the CSV file containing the data
+      Papa.parse(
+        "https://raw.githubusercontent.com/Cyikerionwu/project-files/main/Amaranthus_growth_rate_B.csv",
+        {
+            download: true,
+            header: true,
+            complete: function(results) {
+                // Get the data and labels from the chart
+                var data = chart.config.data;
+                var labels = data.labels;
+                var datasets = data.datasets;
+                
+                // Loop through the data and add to chart
+                var index = 0; // Initialize the index variable
+                function updateChart() {
+                    labels.push(results.data[index]["Days after transplant"]);
+                    datasets[0].data.push(results.data[index]["Number of leaves"]);
+                    datasets[1].data.push(results.data[index]["Leaf width(cm)"]);
+                    datasets[2].data.push(results.data[index]["Leaf Length(cm)"]);
+                    datasets[3].data.push(results.data[index]["crop height(cm)"]);
+                    datasets[4].data.push(results.data[index]["change in growth(cm)"]);
+                    chart.update(); // Update the chart
+                    index++; // Increment the index variable
+                    
+                    if (index < results.data.length) {
+                        setTimeout(updateChart, 3000); // Delay the execution of each iteration of the loop by 3 second
+                    }
+                }
+                updateChart(); // Call the function to start the loop
+            }
+        }
+        );
+    </script>
+    <br>
+    <h4>Click any of the buttons below to view other graphs.</h4>
+    <br>
+    <!-- Add a button to lead to a different screen -->
+    <button onclick="window.location.href = 'temperature.html';">View Temperature Chart</button><br>
+    <br>
+    <button onclick="window.location.href = 'relative_humidity.html';">View Relative Humidity Chart</button><br>
+    <br>
+    <button onclick="window.location.href = 'amaranthusA.html';">View Amaranthus_growth_rate_A Chart</button>
+    </body>
+</html>
