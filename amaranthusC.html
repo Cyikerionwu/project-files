@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Histogram Chart from CSV</title>
+    
+    <!-- create a container div and align it to the right -->
+    <div style="text-align: right;">
+      <!-- create a link to the temperature chart page -->
+      <a href="temperature.html">Temperature Chart</a><br> 
+      <!-- create a link to the Amaranthus A growth rate chart page -->
+      <a href="amaranthusA.html">Amaranthus_growth_rate_A Chart</a><br>
+      <!-- create a link to the Amaranthus B growth rate chart page -->
+      <a href="amaranthusB.html">Amaranthus_growth_rate_B Chart</a><br>
+      <!-- create a link to the Amaranthus C growth rate chart page -->
+      <a href="amaranthusC.html">Amaranthus_growth_rate_C Chart</a><br>
+      <!-- create a link to the Amaranthus D growth rate chart page -->
+      <a href="amaranthusD.html">Amaranthus_growth_rate_D Chart</a>
+    </div>
+
+    <!-- css styling text -->
+    <style>
+        h1 {
+          text-align: center;
+        }
+        p {
+        background-color: #F2F2F2; /* Light Gray */
+        font-size: 16px;
+        line-height: 1.5;
+        color: #333;
+        margin: 10px 0;
+        padding: 0;
+        text-align: justify;
+    }
+    a {
+        color: blue; /* changes the link color to blue */
+        font-weight: bold; /* makes the link text bold */
+        text-decoration: none; /* removes the underline from the link */
+        padding: 10px; /* adds 10 pixels of padding around the link */
+      }
+      a:hover {
+        color: red; /* changes the link color to red when hovered over */
+        text-decoration: underline; /* underlines the link when hovered over */
+      }
+      </style>
+
+    <!-- Import Chart.js library -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Import Papa Parse library for parsing CSV files -->
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.0/papaparse.min.js"></script>
+  </head>
+
+  <body>
+    <h1>Amaranthus_growth_rate_C: Real-Time Data Histogram Chart Reading</h1>
+    <p>Amaranthus is a plant commonly grown in smart farming systems due to its nutritional value and relatively short growth period. One important metric for assessing Amaranthus growth is its growth rate. To better monitor and optimise Amaranthus growth, real-time data visualisation through histogram chart reading was implemented.
+        <br><br>To achieve real-time data visualisation of the Amaranthus growth rate, sensors were installed throughout the farm to collect data on the plant's growth rate. This data was then transmitted to a central system, which could store and analyse it. The system then generated a CSV (comma-separated values) file format of the data.
+        <br><br>A web-based application that displays a histogram chart of the amaranth growth rate can access and read this CSV file in real-time. The histogram chart displays the frequency distribution of the growth rates measured by the sensors, allowing farmers to easily identify any trends or patterns in the amaranthus growth rate.
+    </p>
+
+    <canvas id="myChart"></canvas>
+
+    <script>
+      // Get the canvas element and create a new Chart instance
+      var ctx = document.getElementById("myChart").getContext("2d");
+      var chart = new Chart(ctx, {
+        type: "bar",
+        data: {
+          labels: [], // An empty array to hold the labels for the chart
+          datasets: [
+            {
+              label: "Number of leaves",
+              data: [], // An empty array to hold the data for the chart
+              backgroundColor: "rgba(255, 99, 132, 0.2)",
+              borderColor: "rgba(255, 99, 132, 1)",
+              borderWidth: 1
+            },
+            {
+              label: "Leaf width(cm)",
+              data: [], // An empty array to hold the data for the chart
+              backgroundColor: "rgba(133, 0, 39)",
+              borderColor: "rgba(54, 162, 235, 1)",
+              borderWidth: 1
+            },
+            {
+              label: "Leaf Length(cm)",
+              data: [], // An empty array to hold the data for the chart
+              backgroundColor: "rgba(0, 0, 0)",
+              borderColor: "rgba(255, 206, 86, 1)",
+              borderWidth: 1
+            },
+            {
+              label: "crop height(cm)",
+              data: [], // An empty array to hold the data for the chart
+              backgroundColor: "rgba(171, 133, 158)",
+              borderColor: "rgba(75, 192, 192, 1)",
+              borderWidth: 1
+            },
+            {
+              label: "change in growth(cm)",
+              data: [], // An empty array to hold the data for the chart
+              backgroundColor: "rgba(171, 255, 205)",
+              borderColor: "rgba(153, 102, 255, 1)",
+              borderWidth: 1
+            }
+          ]
+        },
+        options: {
+          title: {
+            display: true,
+            text: "Amaranthus Growth Rate"
+          },
+          scales: {
+            yAxes: [
+              {
+                ticks: {
+                  beginAtZero: true
+                }
+              }
+            ]
+          }
+        }
+      });
+      // Use Papa Parse to download and parse the CSV file containing the data
+      Papa.parse(
+        "https://raw.githubusercontent.com/Cyikerionwu/project-files/main/Amaranthus_rate_rate_C.csv",
+        {
+            download: true,
+            header: true,
+            complete: function(results) {
+                // Get the data and labels from the chart
+                var data = chart.config.data;
+                var labels = data.labels;
+                var datasets = data.datasets;
+                
+                // Loop through the data and add to chart
+                var index = 0; // Initialize the index variable
+                function updateChart() {
+                    labels.push(results.data[index]["Days after transplant"]);
+                    datasets[0].data.push(results.data[index]["Number of leaves"]);
+                    datasets[1].data.push(results.data[index]["Leaf width(cm)"]);
+                    datasets[2].data.push(results.data[index]["Leaf Length(cm)"]);
+                    datasets[3].data.push(results.data[index]["crop height(cm)"]);
+                    datasets[4].data.push(results.data[index]["change in growth(cm)"]);
+                    chart.update(); // Update the chart
+                    index++; // Increment the index variable
+                    
+                    if (index < results.data.length) {
+                        setTimeout(updateChart, 3000); // Delay the execution of each iteration of the loop by 3 second
+                    }
+                }
+                updateChart(); // Call the function to start the loop
+            }
+        }
+        );
+    </script>
+    </body>
+</html>
