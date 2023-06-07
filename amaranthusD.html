@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Real-Time Scatter Graph with AJAX</title>
+
+  <!-- create a container div and align it to the right -->
+  <div style="text-align: right;">
+    <!-- create a link to the temperature chart page -->
+    <a href="relative_humidity.html">Relative Humidity Chart</a><br> 
+    <a href="temperature.html">Temperature Chart</a><br> 
+    <!-- create a link to the Amaranthus A growth rate chart page -->
+    <a href="amaranthusA.html">Amaranthus growth rate A Chart</a><br>
+    <!-- create a link to the Amaranthus B growth rate chart page -->
+    <a href="amaranthusB.html">Amaranthus growth rate B Chart</a><br>
+    <!-- create a link to the Amaranthus C growth rate chart page -->
+    <a href="amaranthusC.html">Amaranthus growth rate C Chart</a><br>
+  </div>
+  
+  <!-- css styling text -->
+  <style>
+  h1 {
+    text-align: center;
+  }
+  a {
+    color: blue; /* changes the link color to blue */
+    font-weight: bold; /* makes the link text bold */
+    text-decoration: none; /* removes the underline from the link */
+    padding: 10px; /* adds 10 pixels of padding around the link */
+  }
+  a:hover {
+    color: red; /* changes the link color to red when hovered over */
+    text-decoration: underline; /* underlines the link when hovered over */
+  }
+  </style>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+  <h1>Amaranthus growth rate D: Real-Time Data Scatter Chart Reading</h1>
+  <canvas id="scatterChart"></canvas>
+
+  <script>
+    // Initialize the scatter chart
+    var scatterChart = new Chart('scatterChart', {
+      type: 'scatter',
+      data: {
+        datasets: [{
+          label: 'Amarathus D Scatter Data',
+          data: [],
+          backgroundColor: 'rgba(0, 123, 255, 0.8)',
+          borderColor: 'rgba(0, 123, 255, 1)',
+          borderWidth: 1
+        }]
+      },
+      options: {
+        scales: {
+          x: {
+            type: 'linear',
+            position: 'bottom',
+            title: {
+              display: true,
+              text: 'Days After Transplant'
+            }
+          },
+          y: {
+            type: 'linear',
+            title: {
+              display: true,
+              text: 'Growth Rate'
+            }
+          }
+        }
+      }
+    });
+
+    // Function to update the scatter graph with the next data point
+    function updateScatterGraph() {
+      $.ajax({
+        url: 'https://raw.githubusercontent.com/Cyikerionwu/project-files/main/Amaranthus_growth_rate_D.csv',
+        type: 'GET',
+        dataType: 'text',
+        success: function(csvData) {
+          var rows = csvData.split('\n');
+          var data = [];
+
+          var i = scatterChart.data.datasets[0].data.length + 1; // Get the next index
+          if (i < rows.length) {
+            var row = rows[i].split(',');
+            var x = parseFloat(row[0]);
+            var y = parseFloat(row[1]);
+
+            if (!isNaN(x) && !isNaN(y)) {
+              data.push({ x: x, y: y });
+
+              // Update the scatter graph with the new data point
+              scatterChart.data.datasets[0].data.push(data[0]);
+              scatterChart.update();
+            }
+          }
+        }
+      });
+    }
+
+    // Call the updateScatterGraph function initially
+    updateScatterGraph();
+
+    // Use setInterval to update the scatter graph every 3 seconds
+    setInterval(updateScatterGraph, 3000);
+  </script>
+</body>
+</html>
